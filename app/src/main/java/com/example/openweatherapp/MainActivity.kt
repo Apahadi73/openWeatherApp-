@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
     private var cityName = "tyler"
     private val API = "4cba5dd445c51e36ffd7fdb3568ab036"
     private lateinit var binding:ActivityMainBinding
-   private lateinit var context:Context
+    private lateinit var context:Context
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,47 +63,46 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     val weather = response.body();
-                    if (weather?.name == null){
-                        Toast.makeText(context,"Please enter a valid city",Toast.LENGTH_LONG)
-                    }
-                    Log.d("response", weather.toString())
-                    val wind = weather?.wind?.speed
+                    if (weather?.name != null){
+                        Log.d("response", weather.toString())
+                        val wind = weather?.wind?.speed
 
-                    val date = SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.ENGLISH).format(
-                        Date((weather?.dt?.toLong() ?:1 ) *1000)
-                    )
-                    val temp = weather?.main?.temp.toString() + "°C"
-                    val tempMin = "Min Temp: " + weather?.main?.temp_min.toString() + "°C"
-                    val tempMax = "Max Temp: " +weather?.main?.temp_max.toString() + "°C"
-                    val feelsLike = "Feels Like: " +weather?.main?.feels_like.toString() + "°C"
-                    val pressure = weather?.main?.pressure.toString() + "hPa"
-                    val humidity = weather?.main?.humidity.toString()
-                    val sunrise = SimpleDateFormat("hh:mm a", Locale.ENGLISH).format(
-                        Date(
-                            (weather?.sys?.sunrise?.toLong() ?: 1) * 1000
+                        val date = SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.ENGLISH).format(
+                            Date((weather?.dt?.toLong() ?:1 ) *1000)
                         )
-                    )
-                    val sunset = SimpleDateFormat("hh:mm a", Locale.ENGLISH).format(
-                        Date(
-                            (weather?.sys?.sunset?.toLong() ?: 1) * 1000
+                        val temp = weather?.main?.temp.toString() + "°C"
+                        val tempMin = "Min Temp: " + weather?.main?.temp_min.toString() + "°C"
+                        val tempMax = "Max Temp: " +weather?.main?.temp_max.toString() + "°C"
+                        val feelsLike = "Feels Like: " +weather?.main?.feels_like.toString() + "°C"
+                        val pressure = weather?.main?.pressure.toString() + "hPa"
+                        val humidity = weather?.main?.humidity.toString()
+                        val sunrise = SimpleDateFormat("hh:mm a", Locale.ENGLISH).format(
+                            Date(
+                                (weather?.sys?.sunrise?.toLong() ?: 1) * 1000
+                            )
                         )
-                    )
-                    val weatherDescription = weather?.weather?.get(0)?.description
-                    val address = weather?.name + ", " + weather?.sys?.country
+                        val sunset = SimpleDateFormat("hh:mm a", Locale.ENGLISH).format(
+                            Date(
+                                (weather?.sys?.sunset?.toLong() ?: 1) * 1000
+                            )
+                        )
+                        val weatherDescription = weather?.weather?.get(0)?.description
+                        val address = weather?.name + ", " + weather?.sys?.country
 
 ////                    populating the data
-                    binding.address.text = address
-                    binding.date.text = date
-                    binding.weatherDescription.text = weatherDescription
-                    binding.temp.text = temp
-                    binding.feelsLike.text = feelsLike
-                    binding.tempMin.text = tempMin
-                    binding.tempMax.text = tempMax
-                    binding.sunrise.text = sunrise
-                    binding.sunset.text = sunset
-                    binding.wind.text = "${wind.toString()}m/s"
-                    binding.pressure.text = pressure
-                    binding.humidity.text = humidity
+                        binding.address.text = address
+                        binding.date.text = date
+                        binding.weatherDescription.text = weatherDescription
+                        binding.temp.text = temp
+                        binding.feelsLike.text = feelsLike
+                        binding.tempMin.text = tempMin
+                        binding.tempMax.text = tempMax
+                        binding.sunrise.text = sunrise
+                        binding.sunset.text = sunset
+                        binding.wind.text = "${wind.toString()}m/s"
+                        binding.pressure.text = pressure
+                    }
+
                 }
 
                 override fun onFailure(call: Call<Weather>, t: Throwable) {
