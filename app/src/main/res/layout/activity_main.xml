@@ -2,28 +2,6 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <data>
-
-        <variable
-            name="main"
-            type="String" />
-
-        <variable
-            name="sys"
-            type="com.example.openweatherapp.MainActivity" />
-
-        <variable
-            name="wind"
-            type="com.example.openweatherapp.MainActivity" />
-
-        <variable
-            name="weather"
-            type="com.example.openweatherapp.MainActivity" />
-
-        <variable
-            name="name"
-            type="com.example.openweatherapp.MainActivity" />
-    </data>
 
     <RelativeLayout
         android:layout_width="match_parent"

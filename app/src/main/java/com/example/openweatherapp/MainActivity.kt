@@ -1,33 +1,35 @@
 package com.example.openweatherapp
 
-import android.icu.text.SimpleDateFormat
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
-import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
-import com.android.volley.Request
-import com.android.volley.RequestQueue
-import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.Volley
 import com.example.openweatherapp.databinding.ActivityMainBinding
-import org.json.JSONException
+import com.example.openweatherapp.weatherData.Weather
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import java.text.SimpleDateFormat
 import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
-    private var mQueue: RequestQueue? = null
     private var cityName = "tyler"
     private val API = "4cba5dd445c51e36ffd7fdb3568ab036"
-    private var url = "http://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${API}&units=metric"
     private lateinit var binding:ActivityMainBinding
+   private lateinit var context:Context
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding =  DataBindingUtil.setContentView(this, R.layout.activity_main)
-        mQueue = Volley.newRequestQueue(this)
+        // Specify the current activity as the lifecycle owner.
+        binding.setLifecycleOwner(this)
+        context = this
         weatherInfo
 
         binding.textfield.setOnKeyListener(object : View.OnKeyListener {
@@ -35,7 +37,7 @@ class MainActivity : AppCompatActivity() {
                 if (event.getAction() === KeyEvent.ACTION_DOWN) {
                     when (keyCode) {
                         KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER -> {
-                            Log.d("response",cityName)
+
                             cityName= binding.textfield.text.toString()
                             weatherInfo
                             return true
@@ -51,45 +53,45 @@ class MainActivity : AppCompatActivity() {
 
     private val weatherInfo: Unit
         get() {
-            val request = JsonObjectRequest(Request.Method.GET, url, null, { response ->
-                try {
-                    Log.d("response", response.toString())
-                    val main = response.getJSONObject("main")
-                    val sys = response.getJSONObject("sys")
-                    val wind = response.getJSONObject("wind")
-                    val weather = response.getJSONArray("weather").getJSONObject(0)
+            WeatherApiService.WeatherApi.retrofitService.getWeather(cityName,API,"metric").enqueue(object:Callback<Weather>{
+                override fun onResponse(call: Call<Weather>, response: Response<Weather>) {
+                    if(response.code()==404){
+                        Toast.makeText(context,"Please enter a valid city",Toast.LENGTH_LONG)
+                    }
+                    else if (!(response.isSuccessful)){
+                        Toast.makeText(context,response.code(),Toast.LENGTH_LONG).show()
+                    }
+
+                    val weather = response.body();
+                    if (weather?.name == null){
+                        Toast.makeText(context,"Please enter a valid city",Toast.LENGTH_LONG)
+                    }
+                    Log.d("response", weather.toString())
+                    val wind = weather?.wind?.speed
+
                     val date = SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.ENGLISH).format(
-                        Date(
-                            response.getLong(
-                                "dt"
-                            ) * 1000
-                        )
+                        Date((weather?.dt?.toLong() ?:1 ) *1000)
                     )
-                    val temp = main.getString("temp") + "°C"
-                    val tempMin = "Min Temp: " + main.getString("temp_min") + "°C"
-                    val tempMax = "Max Temp: " + main.getString("temp_max") + "°C"
-                    val feelsLike = "Feels Like: " + main.getString("feels_like") + "°C"
-                    val pressure = main.getString("pressure") + "hPa"
-                    val humidity = main.getString("humidity")
+                    val temp = weather?.main?.temp.toString() + "°C"
+                    val tempMin = "Min Temp: " + weather?.main?.temp_min.toString() + "°C"
+                    val tempMax = "Max Temp: " +weather?.main?.temp_max.toString() + "°C"
+                    val feelsLike = "Feels Like: " +weather?.main?.feels_like.toString() + "°C"
+                    val pressure = weather?.main?.pressure.toString() + "hPa"
+                    val humidity = weather?.main?.humidity.toString()
                     val sunrise = SimpleDateFormat("hh:mm a", Locale.ENGLISH).format(
                         Date(
-                            sys.getLong(
-                                "sunrise"
-                            ) * 1000
+                            (weather?.sys?.sunrise?.toLong() ?: 1) * 1000
                         )
                     )
                     val sunset = SimpleDateFormat("hh:mm a", Locale.ENGLISH).format(
                         Date(
-                            sys.getLong(
-                                "sunset"
-                            ) * 1000
+                            (weather?.sys?.sunset?.toLong() ?: 1) * 1000
                         )
                     )
-                    val windSpeed = wind.getString("speed") + "m/s"
-                    val weatherDescription = weather.getString("description")
-                    val address = response.getString("name") + ", " + sys.getString("country")
+                    val weatherDescription = weather?.weather?.get(0)?.description
+                    val address = weather?.name + ", " + weather?.sys?.country
 
-//                    populating the data
+////                    populating the data
                     binding.address.text = address
                     binding.date.text = date
                     binding.weatherDescription.text = weatherDescription
@@ -99,17 +101,16 @@ class MainActivity : AppCompatActivity() {
                     binding.tempMax.text = tempMax
                     binding.sunrise.text = sunrise
                     binding.sunset.text = sunset
-                    binding.wind.text = windSpeed
+                    binding.wind.text = "${wind.toString()}m/s"
                     binding.pressure.text = pressure
                     binding.humidity.text = humidity
-
-                } catch (e: JSONException) {
-                    e.printStackTrace()
                 }
-            }) { error -> // TODO: Handle error
-                Log.d("myResponse", error.toString())
-            }
-            mQueue!!.add(request)
+
+                override fun onFailure(call: Call<Weather>, t: Throwable) {
+                    Toast.makeText(context,"Something went wrong while fetching the data",Toast.LENGTH_LONG)
+                }
+
+            })
         }
 
 
