@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">openWeatherApp</string>
+    <string name="errorMessage">Something went wrong.Please try again!</string>
+    <string name="textfield_hint">City Name</string>
+    <string name="cityPlaceholder">Tyler,TX</string>
+    <string name="datePlaceholder">20 April 2020, 20:08 PM</string>
+    <string name="weather_description_placeholder">Clear Sky</string>
+    <string name="temp_placeholder">29°C</string>
+    <string name="feelslike_placeholder">Feels like: 29°C</string>
+    <string name="min_temp_placeholder">Min Temp: 05:05 AM</string>
+    <string name="max_temp_placeholder">Max Temp: 05:05 PM</string>
+</resources>
